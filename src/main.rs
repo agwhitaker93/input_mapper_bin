@@ -49,9 +49,23 @@ fn window_stuff() {
 fn evdev_stuff() {
     let mut dev = pick_device();
     let mut virtual_mouse = virtual_mouse().unwrap();
-    println!("Events:");
     loop {
         for ev in dev.fetch_events().unwrap() {
+            let mut window_match = false;
+            match get_active_window() {
+                Ok(active_window) => {
+                    if active_window.title.to_lowercase().contains("darktide") {
+                        window_match = true;
+                    }
+                }
+                Err(()) => {
+                    // Something went wrong, just ignore it and work as before
+                    window_match = true;
+                }
+            }
+            if !window_match {
+                continue;
+            }
             let kind = ev.kind();
             let value = ev.value();
             match kind {
